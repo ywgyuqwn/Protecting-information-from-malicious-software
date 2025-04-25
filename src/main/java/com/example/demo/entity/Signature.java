@@ -1,86 +1,83 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "signatures")
 public class Signature {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
-    private String detectedObjectName;
+    @Column(nullable = false)
+    private String data;
 
-    // Можно хранить как строку (например, HEX формат первых 8 байт)
-    private String first8Bytes;
+    private String status;
 
-    // Хэш остатка сигнатуры
-    private String hashOfRest;
+    private String createdBy;
+    private LocalDateTime createdDate;
 
-    // Длина остатка сигнатуры
-    private int restLength;
+    private String updatedBy;
+    private LocalDateTime updatedDate;
 
-    // Тип файла
-    private String fileType;
+    public Signature() {
+    }
 
-    // Смещение начала
-    private int startOffset;
-
-    // Смещение конца
-    private int endOffset;
-
-    // Геттеры и сеттеры
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public String getDetectedObjectName() {
-        return detectedObjectName;
-    }
-    public void setDetectedObjectName(String detectedObjectName) {
-        this.detectedObjectName = detectedObjectName;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public String getFirst8Bytes() {
-        return first8Bytes;
-    }
-    public void setFirst8Bytes(String first8Bytes) {
-        this.first8Bytes = first8Bytes;
+    public String getData() {
+        return data;
     }
 
-    public String getHashOfRest() {
-        return hashOfRest;
-    }
-    public void setHashOfRest(String hashOfRest) {
-        this.hashOfRest = hashOfRest;
+    public void setData(String data) {
+        this.data = data;
     }
 
-    public int getRestLength() {
-        return restLength;
-    }
-    public void setRestLength(int restLength) {
-        this.restLength = restLength;
+    public String getStatus() {
+        return status;
     }
 
-    public String getFileType() {
-        return fileType;
-    }
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public int getStartOffset() {
-        return startOffset;
-    }
-    public void setStartOffset(int startOffset) {
-        this.startOffset = startOffset;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public int getEndOffset() {
-        return endOffset;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
-    public void setEndOffset(int endOffset) {
-        this.endOffset = endOffset;
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
     }
 }

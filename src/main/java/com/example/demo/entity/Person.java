@@ -16,10 +16,9 @@ public class Person {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
-    @JsonBackReference // 🚨 Предотвращает зацикливание при сериализации
+    @JsonBackReference
     private Company company;
-
-    // Связь многие-ко-многим с Hobby
+    
     @ManyToMany
     @JoinTable(
             name = "person_hobbies",
@@ -32,7 +31,6 @@ public class Person {
     @JoinColumn(name = "passport_id", referencedColumnName = "id")
     private Passport passport;
 
-    // Геттеры и сеттеры (обязательно нужны для JPA)
     public Long getId() {
         return id;
     }

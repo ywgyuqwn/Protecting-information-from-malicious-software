@@ -37,7 +37,6 @@ public class HobbyService {
         if (optionalHobby.isPresent()) {
             Hobby existingHobby = optionalHobby.get();
             existingHobby.setHobbyName(newData.getHobbyName());
-            // если есть ещё поля - обновляем
 
             return hobbyRepository.save(existingHobby);
         }

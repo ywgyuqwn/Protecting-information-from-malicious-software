@@ -37,7 +37,6 @@ public class CompanyService {
         if (optionalCompany.isPresent()) {
             Company existingCompany = optionalCompany.get();
             existingCompany.setCompanyName(newData.getCompanyName());
-            // при необходимости обновляйте и другие поля
 
             return companyRepository.save(existingCompany);
         }

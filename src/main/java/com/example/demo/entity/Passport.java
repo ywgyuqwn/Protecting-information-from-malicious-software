@@ -9,9 +9,8 @@ public class Passport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String number; // номер паспорта, уникальное поле, например
+    private String number;
 
-    // Обратная связь с Person
     @OneToOne
     @JoinColumn(name = "person_id")
     private Person person;

@@ -14,7 +14,6 @@ public class Hobby {
 
     private String hobbyName;
 
-    // ManyToMany с Person
     @ManyToMany(mappedBy = "hobbies")
     private Set<Person> persons = new HashSet<>();
 

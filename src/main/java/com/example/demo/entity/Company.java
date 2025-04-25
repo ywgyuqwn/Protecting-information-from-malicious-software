@@ -16,7 +16,7 @@ public class Company {
     private String companyName;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore // 🚨 Отключаем рекурсивную сериализацию
+    @JsonIgnore
     private List<Person> employees;
 
     public Long getId() {
