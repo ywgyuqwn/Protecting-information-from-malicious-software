@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface SignatureRepository extends JpaRepository<Signature, UUID> {
     List<Signature> findByStatus(String status);
-    List<Signature> findByCreatedDateAfter(LocalDateTime date);
+    List<Signature> findByUpdatedAtAfter(LocalDateTime date);
 }

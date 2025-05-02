@@ -25,7 +25,7 @@ public class SignatureService {
     }
 
     public List<Signature> getSignaturesSince(LocalDateTime date) {
-        return repository.findByCreatedDateAfter(date);
+        return repository.findByUpdatedAtAfter(date);
     }
 
     public List<Signature> getSignaturesByIds(List<UUID> ids) {
@@ -33,11 +33,15 @@ public class SignatureService {
     }
 
     public Signature createSignature(Signature signature, String createdBy) {
-        signature.setCreatedBy(createdBy);
-        signature.setCreatedDate(LocalDateTime.now());
+        signature.setUpdatedAt(LocalDateTime.now());
         Signature saved = repository.save(signature);
+        auditService.logAudit(
+                saved.getId(),
+                createdBy,
+                "CREATED",
+                "threatName,firstBytes,remainderHash,remainderLength,fileType,offsetStart,offsetEnd,digitalSignature,status"
+        );
 
-        auditService.logAudit(saved.getId(), createdBy, "CREATED", "data,status");
         return saved;
     }
 
@@ -45,21 +49,21 @@ public class SignatureService {
         return repository.findById(id).map(signature -> {
             StringBuilder changedFields = new StringBuilder();
 
-            if (!signature.getData().equals(newSignature.getData())) {
-                changedFields.append("data ");
-                signature.setData(newSignature.getData());
+            if (!signature.getThreatName().equals(newSignature.getThreatName())) {
+                changedFields.append("threatName ");
+                signature.setThreatName(newSignature.getThreatName());
             }
-
+// аналогично для firstBytes, remainderHash, remainderLength, fileType, offsetStart, offsetEnd, digitalSignature
             if (!signature.getStatus().equals(newSignature.getStatus())) {
                 changedFields.append("status ");
                 signature.setStatus(newSignature.getStatus());
             }
 
-            signature.setUpdatedBy(updatedBy);
-            signature.setUpdatedDate(LocalDateTime.now());
+// обновляем временную метку
+            signature.setUpdatedAt(LocalDateTime.now());
             Signature updated = repository.save(signature);
-
             auditService.logAudit(updated.getId(), updatedBy, "UPDATED", changedFields.toString().trim());
+
             return updated;
         });
     }
@@ -77,7 +81,7 @@ public class SignatureService {
     }
 
     public void verifySignatures(LocalDateTime date) {
-        List<Signature> signatures = repository.findByCreatedDateAfter(date);
+        List<Signature> signatures = repository.findByUpdatedAtAfter(date);
         for (Signature signature : signatures) {
             System.out.println("Проверка подписи: " + signature.getId() + " — статус: " + signature.getStatus());
         }
