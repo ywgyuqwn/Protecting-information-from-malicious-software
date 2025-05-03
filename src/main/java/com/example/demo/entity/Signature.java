@@ -3,6 +3,8 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 @Entity
 public class Signature {
@@ -33,8 +35,8 @@ public class Signature {
     private Integer offsetEnd;                // INT
 
     @Column(name            = "digital_signature",
-            columnDefinition = "BYTEA",    // <- говорим Hibernate: в БД это BYTEA (BLOB)
-            nullable        = false
+            columnDefinition = "BYTEA",
+            nullable        = true
     )
     private byte[] digitalSignature;
     // BLOB
@@ -45,6 +47,13 @@ public class Signature {
     @Column(name = "status", nullable = false)
     private String status;                    // VARCHAR (ACTUAL, DELETED, CORRUPTED)
 
+    // Новые поля для результатов сканирования
+    @Transient
+    private long offsetFromStart;  // Смещение начала сигнатуры в файле
+    @Transient
+    private long offsetFromEnd;    // Смещение конца сигнатуры в файле
+    @Transient
+    private boolean matched;       // Флаг, совпала ли сигнатура
 
     public Signature() {
     }
@@ -71,6 +80,26 @@ public class Signature {
     }
     public void setFirstBytes(byte[] firstBytes) {
         this.firstBytes = firstBytes;
+    }
+
+    public long getFirstBytesHash() throws NoSuchAlgorithmException {
+        // Используем алгоритм SHA-256 для вычисления хэша
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+        // Вычисляем хэш от первых байт (firstBytes)
+        byte[] hash = md.digest(firstBytes);
+
+        // Преобразуем первые 8 байт хэша в число long
+        return bytesToLong(hash);
+    }
+
+    private long bytesToLong(byte[] bytes) {
+        long result = 0;
+        // Переводим первые 8 байтов в число типа long
+        for (int i = 0; i < 8 && i < bytes.length; i++) {
+            result = (result << 8) | (bytes[i] & 0xFF);  // Сдвигаем на 8 бит и добавляем байт
+        }
+        return result;
     }
 
     // remainderHash
@@ -135,6 +164,46 @@ public class Signature {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // Новые геттеры и сеттеры для transient полей
+    public long getOffsetFromStart() {
+        return offsetFromStart;
+    }
+    public void setOffsetFromStart(long offsetFromStart) {
+        this.offsetFromStart = offsetFromStart;
+    }
+
+    public long getOffsetFromEnd() {
+        return offsetFromEnd;
+    }
+    public void setOffsetFromEnd(long offsetFromEnd) {
+        this.offsetFromEnd = offsetFromEnd;
+    }
+
+    public boolean isMatched() {
+        return matched;
+    }
+    public void setMatched(boolean matched) {
+        this.matched = matched;
+    }
+
+    @Override
+    public String toString() {
+        return "Signature{" +
+                "id=" + id +
+                ", threatName='" + threatName + '\'' +
+                ", firstBytes=" + firstBytes.length +
+                ", remainderHash='" + remainderHash + '\'' +
+                ", remainderLength=" + remainderLength +
+                ", fileType='" + fileType + '\'' +
+                ", offsetStart=" + offsetStart +
+                ", offsetEnd=" + offsetEnd +
+                ", status='" + status + '\'' +
+                ", offsetFromStart=" + offsetFromStart +
+                ", offsetFromEnd=" + offsetFromEnd +
+                ", matched=" + matched +
+                '}';
     }
 
 }

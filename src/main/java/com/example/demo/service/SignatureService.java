@@ -4,7 +4,9 @@ import com.example.demo.entity.Signature;
 import com.example.demo.repository.SignatureRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,8 +35,25 @@ public class SignatureService {
     }
 
     public Signature createSignature(Signature signature, String createdBy) {
+        // Декодируем digitalSignature, если она не пуста
+        if (signature.getDigitalSignature() != null && signature.getDigitalSignature().length > 0) {
+            try {
+                // Преобразуем строку Base64 в byte[]
+                byte[] decodedDigitalSignature = Base64.getDecoder().decode(signature.getDigitalSignature());
+                signature.setDigitalSignature(decodedDigitalSignature);
+            } catch (IllegalArgumentException e) {
+                // Логируем ошибку, если Base64 строка некорректна
+                throw new IllegalArgumentException("Invalid Base64 encoding for digitalSignature.");
+            }
+        }
+
+        // Устанавливаем время обновления
         signature.setUpdatedAt(LocalDateTime.now());
+
+        // Сохраняем сущность
         Signature saved = repository.save(signature);
+
+        // Логируем создание записи в аудите
         auditService.logAudit(
                 saved.getId(),
                 createdBy,
@@ -45,6 +64,8 @@ public class SignatureService {
         return saved;
     }
 
+
+
     public Optional<Signature> updateSignature(UUID id, Signature newSignature, String updatedBy) {
         return repository.findById(id).map(signature -> {
             StringBuilder changedFields = new StringBuilder();
@@ -53,7 +74,7 @@ public class SignatureService {
                 changedFields.append("threatName ");
                 signature.setThreatName(newSignature.getThreatName());
             }
-// аналогично для firstBytes, remainderHash, remainderLength, fileType, offsetStart, offsetEnd, digitalSignature
+    // аналогично для firstBytes, remainderHash, remainderLength, fileType, offsetStart, offsetEnd, digitalSignature
             if (!signature.getStatus().equals(newSignature.getStatus())) {
                 changedFields.append("status ");
                 signature.setStatus(newSignature.getStatus());
